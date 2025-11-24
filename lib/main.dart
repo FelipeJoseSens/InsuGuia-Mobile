@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screen/home_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const InsuGuiaApp());
@@ -12,15 +12,35 @@ class InsuGuiaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'InsuGuia Mobile',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          filled: true,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
-}
-
-// Backwards-compatible alias used by some tests/examples
-class MyApp extends InsuGuiaApp {
-  const MyApp({super.key});
 }
