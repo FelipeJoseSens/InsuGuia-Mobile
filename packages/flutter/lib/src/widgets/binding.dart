@@ -1247,14 +1247,14 @@ mixin WidgetsBinding
           developer.Timeline.instantSync('Rasterized first useful frame');
           developer.postEvent('Flutter.FirstFrame', <String, dynamic>{});
         }
-        SchedulerBinding.instance.removeTimingsCallback(firstFrameCallback!);
+        SchedulerBinding.instance.removeTimingsCallback(firstFrameCallback);
         firstFrameCallback = null;
         _firstFrameCompleter.complete();
       };
       // Callback is only invoked when FlutterView.render is called. When
       // sendFramesToEngine is set to false during the frame, it will not be
       // called and we need to remove the callback (see below).
-      SchedulerBinding.instance.addTimingsCallback(firstFrameCallback!);
+      SchedulerBinding.instance.addTimingsCallback(firstFrameCallback);
     }
 
     try {
@@ -1283,7 +1283,7 @@ mixin WidgetsBinding
       // This frame is deferred and not the first frame sent to the engine that
       // should be reported.
       _needToReportFirstFrame = true;
-      SchedulerBinding.instance.removeTimingsCallback(firstFrameCallback!);
+      SchedulerBinding.instance.removeTimingsCallback(firstFrameCallback);
     }
   }
 
@@ -1333,7 +1333,7 @@ mixin WidgetsBinding
     }
 
     return View(
-      view: platformDispatcher.implicitView!,
+      view: platformDispatcher.implicitView,
       deprecatedDoNotUseWillBeRemovedWithoutNoticePipelineOwner: pipelineOwner,
       deprecatedDoNotUseWillBeRemovedWithoutNoticeRenderView: renderView,
       child: rootWidget,

@@ -1067,8 +1067,8 @@ void main() {
   });
 }
 
-final Color _selectedColor = Colors.green[100]!;
-final Color _unselectedColor = Colors.green[200]!;
+final Color _selectedColor = Colors.green[100];
+final Color _unselectedColor = Colors.green[200];
 
 TimePickerThemeData _timePickerTheme({bool includeInputDecoration = false}) {
   Color getColor(Set<WidgetState> states) {

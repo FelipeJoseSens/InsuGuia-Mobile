@@ -3114,7 +3114,7 @@ class EditableTextState extends State<EditableText>
   TextSelectionToolbarAnchors get contextMenuAnchors {
     if (renderEditable.lastSecondaryTapDownPosition != null) {
       return TextSelectionToolbarAnchors(
-        primaryAnchor: renderEditable.lastSecondaryTapDownPosition!,
+        primaryAnchor: renderEditable.lastSecondaryTapDownPosition,
       );
     }
 
@@ -3641,7 +3641,7 @@ class EditableTextState extends State<EditableText>
           shouldResetOrigin: shouldResetOrigin,
         );
         _lastTextPosition = currentTextPosition;
-        renderEditable.setFloatingCursor(point.state, _lastBoundedOffset!, _lastTextPosition!);
+        renderEditable.setFloatingCursor(point.state, _lastBoundedOffset, _lastTextPosition);
       case FloatingCursorDragState.Update:
         final Offset centeredPoint = point.offset! - _pointOffsetOrigin!;
         final Offset rawCursorOffset = _startCaretCenter! + centeredPoint - _floatingCursorOffset;
@@ -3650,7 +3650,7 @@ class EditableTextState extends State<EditableText>
         _lastTextPosition = renderEditable.getPositionForPoint(
           renderEditable.localToGlobal(_lastBoundedOffset! + _floatingCursorOffset),
         );
-        renderEditable.setFloatingCursor(point.state, _lastBoundedOffset!, _lastTextPosition!);
+        renderEditable.setFloatingCursor(point.state, _lastBoundedOffset, _lastTextPosition);
       case FloatingCursorDragState.End:
         // Resume cursor blinking.
         if (_hasFocus) {
@@ -3670,12 +3670,12 @@ class EditableTextState extends State<EditableText>
 
   void _onFloatingCursorResetTick() {
     final Offset finalPosition =
-        renderEditable.getLocalRectForCaret(_lastTextPosition!).centerLeft - _floatingCursorOffset;
+        renderEditable.getLocalRectForCaret(_lastTextPosition).centerLeft - _floatingCursorOffset;
     if (_floatingCursorResetController!.isCompleted) {
       renderEditable.setFloatingCursor(
         FloatingCursorDragState.End,
         finalPosition,
-        _lastTextPosition!,
+        _lastTextPosition,
       );
       // During a floating cursor's move gesture (1 finger), a cursor is
       // animated only visually, without actually updating the selection.
@@ -3696,7 +3696,7 @@ class EditableTextState extends State<EditableText>
       if (renderEditable.selection!.isCollapsed) {
         // The cause is technically the force cursor, but the cause is listed as tap as the desired functionality is the same.
         _handleSelectionChanged(
-          TextSelection.fromPosition(_lastTextPosition!),
+          TextSelection.fromPosition(_lastTextPosition),
           SelectionChangedCause.forcePress,
         );
       }
@@ -3712,7 +3712,7 @@ class EditableTextState extends State<EditableText>
       renderEditable.setFloatingCursor(
         FloatingCursorDragState.Update,
         Offset(lerpX, lerpY),
-        _lastTextPosition!,
+        _lastTextPosition,
         resetLerpValue: lerpValue,
       );
     }
@@ -4447,7 +4447,7 @@ class EditableTextState extends State<EditableText>
       );
 
       final List<SuggestionSpan>? suggestions = await _spellCheckConfiguration.spellCheckService!
-          .fetchSpellCheckSuggestions(localeForSpellChecking!, text);
+          .fetchSpellCheckSuggestions(localeForSpellChecking, text);
 
       if (suggestions == null) {
         // The request to fetch spell check suggestions was canceled due to ongoing request.

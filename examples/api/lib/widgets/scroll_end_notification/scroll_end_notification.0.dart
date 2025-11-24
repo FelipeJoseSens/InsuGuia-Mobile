@@ -97,7 +97,7 @@ class _ScrollEndNotificationExampleState extends State<ScrollEndNotificationExam
                     itemBuilder: (BuildContext context, int index) {
                       return Item(
                         title: 'Item $index',
-                        color: Color.lerp(Colors.red, Colors.blue, index / itemCount)!,
+                        color: Color.lerp(Colors.red, Colors.blue, index / itemCount),
                       );
                     },
                   ),

@@ -2822,7 +2822,7 @@ void main() {
     testWidgets('ordering and transform', (WidgetTester tester) async {
       final SemanticsTester semantics = SemanticsTester(tester);
 
-      final double rowOriginY = TestSemantics.fullScreen.height - 10;
+      const double rowOriginY = TestSemantics.fullScreen.height - 10;
 
       late final OverlayEntry entry;
       addTearDown(() {
@@ -2918,7 +2918,7 @@ void main() {
                   child: ListView(
                     children: <Widget>[
                       // Clips OverlayPortal, making it only half visible.
-                      SizedBox(height: TestSemantics.fullScreen.height - 5),
+                      const SizedBox(height: TestSemantics.fullScreen.height - 5),
                       Semantics(
                         container: true,
                         explicitChildNodes: true,
@@ -2984,7 +2984,7 @@ void main() {
                   child: ListView(
                     children: <Widget>[
                       // Clips OverlayPortal, making it completely invisible.
-                      SizedBox(height: TestSemantics.fullScreen.height),
+                      const SizedBox(height: TestSemantics.fullScreen.height),
                       Semantics(
                         container: true,
                         explicitChildNodes: true,
@@ -3049,7 +3049,7 @@ void main() {
                     addSemanticIndexes: false,
                     children: <Widget>[
                       // Clips OverlayPortal, making it completely invisible.
-                      SizedBox(height: TestSemantics.fullScreen.height),
+                      const SizedBox(height: TestSemantics.fullScreen.height),
                       KeepAlive(
                         keepAlive: true,
                         child: Semantics(

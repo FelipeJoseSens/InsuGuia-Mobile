@@ -112,7 +112,7 @@ class _AutomaticKeepAliveState extends State<AutomaticKeepAlive> {
   void dispose() {
     if (_handles != null) {
       for (final Listenable handle in _handles!.keys) {
-        handle.removeListener(_handles![handle]!);
+        handle.removeListener(_handles![handle]);
       }
     }
     super.dispose();
@@ -123,7 +123,7 @@ class _AutomaticKeepAliveState extends State<AutomaticKeepAlive> {
     _handles ??= <Listenable, VoidCallback>{};
     assert(!_handles!.containsKey(handle));
     _handles![handle] = _createCallback(handle);
-    handle.addListener(_handles![handle]!);
+    handle.addListener(_handles![handle]);
     if (!_keepingAlive) {
       _keepingAlive = true;
       final ParentDataElement<KeepAliveParentDataMixin>? childElement = _getChildElement();

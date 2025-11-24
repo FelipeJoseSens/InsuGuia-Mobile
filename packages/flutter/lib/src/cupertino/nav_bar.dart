@@ -2936,7 +2936,7 @@ class _NavigationBarComponentsTransition {
       child: _wrapWithBackground(
         // Don't update the system status bar color mid-flight.
         updateSystemUiOverlay: false,
-        backgroundColor: bottomBackgroundColor!,
+        backgroundColor: bottomBackgroundColor,
         border: topBorder,
         child: SizedBox(height: bottomNavBarBox.size.height, width: double.infinity),
       ),
@@ -3195,7 +3195,7 @@ class _NavigationBarComponentsTransition {
       child: _wrapWithBackground(
         // Don't update the system status bar color mid-flight.
         updateSystemUiOverlay: false,
-        backgroundColor: topBackgroundColor!,
+        backgroundColor: topBackgroundColor,
         border: topBorder,
         child: SizedBox(height: topNavBarBox.size.height, width: double.infinity),
       ),
