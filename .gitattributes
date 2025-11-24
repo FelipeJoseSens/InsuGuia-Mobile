@@ -1,0 +1,18 @@
+# Auto normalize line endings
+* text=auto
+
+# Use LF for scripts and source files
+*.sh text eol=lf
+*.dart text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Use CRLF for Windows batch files
+*.bat text eol=crlf
+
+# Treat images as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
