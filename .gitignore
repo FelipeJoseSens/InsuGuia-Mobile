@@ -46,3 +46,14 @@ app.*.map.json
 # Ignore generated project metadata files
 .metadata
 **/.metadata
+
+# SDK and env files
+flutter/
+.env
+
+# local workspace
+.vscode/
+
+# OS files
+Thumbs.db
+
