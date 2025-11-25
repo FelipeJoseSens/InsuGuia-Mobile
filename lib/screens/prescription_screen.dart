@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/patient.dart';
-import '../models/prescription_result.dart';
 import '../services/prescription_service.dart';
 import 'monitoring_screen.dart';
+import 'discharge_screen.dart'; 
 
 class PrescriptionScreen extends StatelessWidget {
   final Patient patient;
@@ -23,6 +23,7 @@ class PrescriptionScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Card do Plano Terapêutico
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -64,6 +65,8 @@ class PrescriptionScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+            
+            // Card de Orientações
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -113,6 +116,8 @@ class PrescriptionScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
+            // Botão de Acompanhamento
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -128,6 +133,28 @@ class PrescriptionScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
+            
+            const SizedBox(height: 12),
+
+            if (!patient.isDischarged)
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DischargeScreen(patient: patient),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.exit_to_app),
+                label: const Text('Processo de Alta Hospitalar'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  foregroundColor: Colors.green,
+                  side: const BorderSide(color: Colors.green),
+                ),
+              ),
+
             const SizedBox(height: 24),
             Text(
               'Observação: Protótipo acadêmico sem validade clínica.',

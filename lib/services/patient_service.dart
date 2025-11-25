@@ -43,6 +43,36 @@ class PatientService {
     }
   }
 
+  Future<bool> updatePatient(Patient updatedPatient) async {
+    try {
+      final patients = await loadPatients();
+      final index = patients.indexWhere((p) => p.id == updatedPatient.id);
+
+      if (index != -1) {
+        patients[index] = updatedPatient; 
+        return await savePatients(patients); 
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> dischargePatient(String id) async {
+    try {
+      final patients = await loadPatients();
+      final index = patients.indexWhere((p) => p.id == id);
+
+      if (index != -1) {
+        patients[index] = patients[index].copyWith(isDischarged: true);
+        return await savePatients(patients);
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> deletePatient(String patientId) async {
     try {
       final patients = await loadPatients();

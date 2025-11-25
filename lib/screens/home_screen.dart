@@ -3,7 +3,8 @@ import '../models/patient.dart';
 import '../services/patient_service.dart';
 import 'patient_form_screen.dart';
 import 'prescription_screen.dart';
-
+import 'history_screen.dart';
+import 'about_screen.dart'; 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -13,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PatientService _patientService = PatientService();
-  late Future<List<Patient>> _patientsFuture;
+  late Future<List<Patient>> _activePatientsFuture;
 
   @override
   void initState() {
@@ -23,7 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadPatients() {
     setState(() {
-      _patientsFuture = _patientService.loadPatients();
+      // Carrega e FILTRA: apenas quem NÃO teve alta (!p.isDischarged)
+      _activePatientsFuture = _patientService.loadPatients().then(
+        (all) => all.where((p) => !p.isDischarged).toList(),
+      );
     });
   }
 
@@ -42,34 +46,42 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pacientes Salvos'),
+        title: const Text('Pacientes Internados'),
         centerTitle: true,
+        actions: [
+          // Botão de Histórico
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Histórico de Altas',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+              ).then((_) => _loadPatients());
+            },
+          ),
+          // Botão de Sobre (NOVO)
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'Sobre o App',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<Patient>>(
-        future: _patientsFuture,
+        future: _activePatientsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Erro ao carregar pacientes',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-            );
+            return const Center(child: Text('Erro ao carregar pacientes'));
           }
 
           final patients = snapshot.data ?? [];
@@ -86,18 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Nenhum paciente cadastrado',
+                    'Nenhum paciente internado',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Adicione um novo paciente para começar',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
+                  const Text('Adicione um novo ou veja o histórico.'),
                 ],
               ),
             );
@@ -122,13 +129,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Idade: ${patient.age} | Peso: ${patient.weight} kg',
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PrescriptionScreen(patient: patient),
                       ),
                     );
+                    _loadPatients();
                   },
                 ),
               );

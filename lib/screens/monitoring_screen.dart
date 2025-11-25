@@ -3,18 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/patient.dart';
 import '../models/prescription_result.dart';
 import '../services/prescription_service.dart';
-
-class MonitoringRecord {
-  final double glucose;
-  final DateTime timestamp;
-  final String correctionSuggestion;
-
-  MonitoringRecord({
-    required this.glucose,
-    required this.timestamp,
-    required this.correctionSuggestion,
-  });
-}
+import '../services/patient_service.dart'; 
 
 class MonitoringScreen extends StatefulWidget {
   final Patient patient;
@@ -28,8 +17,21 @@ class MonitoringScreen extends StatefulWidget {
 class _MonitoringScreenState extends State<MonitoringScreen> {
   final _glucoseController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final List<MonitoringRecord> _records = [];
+  
+  // Lista local para exibição
+  late List<MonitoringRecord> _records;
+  
   final PrescriptionService _prescriptionService = PrescriptionService();
+  final PatientService _patientService = PatientService(); 
+
+  @override
+  void initState() {
+    super.initState();
+
+    _records = List.from(widget.patient.monitoringHistory);
+
+    _records.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
 
   @override
   void dispose() {
@@ -37,7 +39,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     super.dispose();
   }
 
-  void _addRecord() {
+  Future<void> _addRecord() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -48,8 +50,10 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       currentGlucoseMgDl: glucose,
     );
 
+
     final correctionItem = prescription.items.firstWhere(
       (item) => item.insulinName.contains('Regular'),
+      orElse: () => PrescriptionItem(insulinName: '', dose: 'N/A', route: '', schedule: ''),
     );
 
     final record = MonitoringRecord(
@@ -59,29 +63,42 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     );
 
     setState(() {
-      _records.insert(0, record);
+      _records.insert(0, record); 
       _glucoseController.clear();
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Registro adicionado com sucesso'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+
+    final updatedPatient = widget.patient.copyWith(monitoringHistory: _records);
+    final success = await _patientService.updatePatient(updatedPatient);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Registro salvo com sucesso' : 'Erro ao salvar'),
+          backgroundColor: success ? null : Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
-  void _clearHistory() {
+  Future<void> _clearHistory() async {
     setState(() {
       _records.clear();
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Histórico limpo'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+
+    final updatedPatient = widget.patient.copyWith(monitoringHistory: []);
+    await _patientService.updatePatient(updatedPatient);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Histórico limpo e salvo'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -216,7 +233,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                               Text(dateFormat.format(record.timestamp)),
                               const SizedBox(height: 4),
                               Text(
-                                'Sugestão de correção: ${record.correctionSuggestion}',
+                                'Sugestão: ${record.correctionSuggestion}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.primary,

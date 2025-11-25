@@ -6,26 +6,51 @@ class PrescriptionService {
     Patient patient, {
     double? currentGlucoseMgDl,
   }) {
+    // --- 1. CÁLCULOS BÁSICOS ---
+    
+    // TDD (Total Daily Dose) - Dose Total Diária: 0.5 UI/kg
     final double tdd = patient.weight * 0.5;
-    final double basalDose = patient.weight * 0.2;
+    
+    // Cálculo da Basal (NPH): 0.2 UI/kg
+    final double rawBasalDose = patient.weight * 0.2;
+    
+    // ARREDONDAMENTO DE SEGURANÇA (BASAL):
+    // Arredonda para o inteiro mais próximo (ex: 10.6 -> 11; 10.4 -> 10)
+    // Isso garante que a dose possa ser aspirada em seringas comuns de 1ml.
+    final int basalDose = rawBasalDose.round(); 
+
     final double correctionFactor = 1500.0 / tdd;
+    
     final double targetGlucose = 140.0;
+
 
     final basalItem = PrescriptionItem(
       insulinName: 'Insulina NPH (Basal)',
-      dose: '${basalDose.toStringAsFixed(1)} UI',
+      dose: '$basalDose UI',
       route: 'SC',
       schedule: 'Aplicar às 22:00',
     );
 
+
     String correctionDose;
+    
     if (currentGlucoseMgDl == null) {
+
       correctionDose = 'Conforme Glicemia (esquema de correção)';
     } else {
+
       final double diff = currentGlucoseMgDl - targetGlucose;
+      
       if (diff > 0) {
-        final double calculatedDose = diff / correctionFactor;
-        correctionDose = '${calculatedDose.toStringAsFixed(1)} UI (AGORA)';
+        final double rawCalculatedDose = diff / correctionFactor;
+        
+        final int calculatedDose = rawCalculatedDose.round(); 
+        
+        if (calculatedDose > 0) {
+          correctionDose = '$calculatedDose UI (AGORA)';
+        } else {
+          correctionDose = 'Nenhuma (Dose calculada < 1 UI)';
+        }
       } else {
         correctionDose = 'Nenhuma';
       }
