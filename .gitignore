@@ -57,3 +57,14 @@ flutter/
 # OS files
 Thumbs.db
 
+
+# SDK and env files
+flutter/
+.env
+
+# local workspace
+.vscode/
+
+# OS files
+Thumbs.db
+
