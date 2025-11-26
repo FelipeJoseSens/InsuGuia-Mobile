@@ -1,14 +1,19 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 class MonitoringRecord {
   final double glucose;
   final DateTime timestamp;
   final String correctionSuggestion;
+  final TimeOfDay time;
+  final String period;
 
   MonitoringRecord({
     required this.glucose,
     required this.timestamp,
     required this.correctionSuggestion,
+    required this.time,
+    required this.period,
   });
 
   Map<String, dynamic> toJson() {
@@ -16,6 +21,9 @@ class MonitoringRecord {
       'glucose': glucose,
       'timestamp': timestamp.toIso8601String(),
       'correctionSuggestion': correctionSuggestion,
+      'timeHour': time.hour,
+      'timeMinute': time.minute,
+      'period': period,
     };
   }
 
@@ -24,6 +32,11 @@ class MonitoringRecord {
       glucose: (json['glucose'] as num).toDouble(),
       timestamp: DateTime.parse(json['timestamp']),
       correctionSuggestion: json['correctionSuggestion'],
+      time: TimeOfDay(
+        hour: json['timeHour'] ?? 0,
+        minute: json['timeMinute'] ?? 0,
+      ),
+      period: json['period'] ?? 'Jejum',
     );
   }
 }

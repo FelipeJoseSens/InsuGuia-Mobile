@@ -17,20 +17,57 @@ class MonitoringScreen extends StatefulWidget {
 class _MonitoringScreenState extends State<MonitoringScreen> {
   final _glucoseController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
-  // Lista local para exibição
+
   late List<MonitoringRecord> _records;
-  
+
   final PrescriptionService _prescriptionService = PrescriptionService();
-  final PatientService _patientService = PatientService(); 
+  final PatientService _patientService = PatientService();
+
+  late TimeOfDay _selectedTime;
+  late String _selectedPeriod;
 
   @override
   void initState() {
     super.initState();
 
     _records = List.from(widget.patient.monitoringHistory);
-
     _records.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    final now = TimeOfDay.now();
+    _selectedTime = now;
+    _selectedPeriod = _getPeriodFromTime(now);
+  }
+
+  String _getPeriodFromTime(TimeOfDay time) {
+    final hour = time.hour;
+    if (hour >= 6 && hour < 8) {
+      return 'Jejum';
+    } else if (hour >= 11 && hour < 13) {
+      return 'Pré-Almoço';
+    } else if (hour >= 13 && hour < 15) {
+      return 'Pós-Almoço';
+    } else if (hour >= 17 && hour < 19) {
+      return 'Pré-Jantar';
+    } else if (hour >= 19 && hour < 21) {
+      return 'Pós-Jantar';
+    } else if (hour >= 22 || hour < 6) {
+      return 'Ao Deitar';
+    } else {
+      return 'Outro';
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+        _selectedPeriod = _getPeriodFromTime(picked);
+      });
+    }
   }
 
   @override
@@ -50,7 +87,6 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       currentGlucoseMgDl: glucose,
     );
 
-
     final correctionItem = prescription.items.firstWhere(
       (item) => item.insulinName.contains('Regular'),
       orElse: () => PrescriptionItem(insulinName: '', dose: 'N/A', route: '', schedule: ''),
@@ -60,13 +96,18 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       glucose: glucose,
       timestamp: DateTime.now(),
       correctionSuggestion: correctionItem.dose,
+      time: _selectedTime,
+      period: _selectedPeriod,
     );
 
     setState(() {
-      _records.insert(0, record); 
+      _records.insert(0, record);
       _glucoseController.clear();
-    });
 
+      final now = TimeOfDay.now();
+      _selectedTime = now;
+      _selectedPeriod = _getPeriodFromTime(now);
+    });
 
     final updatedPatient = widget.patient.copyWith(monitoringHistory: _records);
     final success = await _patientService.updatePatient(updatedPatient);
@@ -148,6 +189,46 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    InkWell(
+                      onTap: _selectTime,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Horário',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.access_time),
+                        ),
+                        child: Text(
+                          _selectedTime.format(context),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedPeriod,
+                      decoration: const InputDecoration(
+                        labelText: 'Período',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.schedule),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'Jejum', child: Text('Jejum')),
+                        DropdownMenuItem(value: 'Pré-Almoço', child: Text('Pré-Almoço')),
+                        DropdownMenuItem(value: 'Pós-Almoço', child: Text('Pós-Almoço')),
+                        DropdownMenuItem(value: 'Pré-Jantar', child: Text('Pré-Jantar')),
+                        DropdownMenuItem(value: 'Pós-Jantar', child: Text('Pós-Jantar')),
+                        DropdownMenuItem(value: 'Ao Deitar', child: Text('Ao Deitar')),
+                        DropdownMenuItem(value: 'Outro', child: Text('Outro')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedPeriod = value;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: _addRecord,
                       icon: const Icon(Icons.add),
@@ -208,6 +289,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                     itemCount: _records.length,
                     itemBuilder: (context, index) {
                       final record = _records[index];
+                      final timeStr = '${record.time.hour.toString().padLeft(2, '0')}:${record.time.minute.toString().padLeft(2, '0')}';
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
@@ -231,6 +313,14 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                             children: [
                               const SizedBox(height: 4),
                               Text(dateFormat.format(record.timestamp)),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Horário: $timeStr - ${record.period}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 'Sugestão: ${record.correctionSuggestion}',
