@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/patient.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/patient_service.dart';
 import 'patient_form_screen.dart';
 import 'prescription_screen.dart';
@@ -13,6 +14,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+    Future<void> _logout() async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('logged_user');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    }
   final PatientService _patientService = PatientService();
   late Future<List<Patient>> _activePatientsFuture;
 
@@ -49,7 +57,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Pacientes Internados'),
         centerTitle: true,
         actions: [
-          // Botão de Histórico
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: _logout,
+          ),
           IconButton(
             icon: const Icon(Icons.history),
             tooltip: 'Histórico de Altas',
@@ -60,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ).then((_) => _loadPatients());
             },
           ),
-          // Botão de Sobre (NOVO)
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: 'Sobre o App',
